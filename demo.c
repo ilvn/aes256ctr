@@ -52,6 +52,12 @@ int main (int argc, char *argv[])
                " B4 07 DF 86 65 69 FD 07 F4 8C C0 B5 83 D6 07 1F"
                " 1E C0 E6 B8\n");
 
+
+    ctr.ctr[0] = ctr.ctr[1] = ctr.ctr[2] = 0, ctr.ctr[3] = 1;
+    aes256_setCtrBlk(&ctx, &ctr);
+    aes256_decrypt_ctr(&ctx, buf, sizeof(buf));
+    dump("dec: ", buf, sizeof(buf));
+
     aes256_done(&ctx);
 
     return 0;
