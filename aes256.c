@@ -6,9 +6,10 @@
 */
 #include "aes256.h"
 
-#define F(x)   (((x)<<1) ^ ((((x)>>7) & 1) * 0x1b))
+#define F(x)   (uint8_t)(((x)<<1) ^ ((((x)>>7) & 1) * 0x1b))
 
 // #define BACK_TO_TABLES
+
 #ifdef BACK_TO_TABLES
 
 const uint8_t sbox[256] = {
@@ -50,6 +51,11 @@ const uint8_t sbox[256] = {
 
 #else /* tableless subroutines */
 
+static uint8_t gf_alog(uint8_t x);
+static uint8_t gf_log(uint8_t x);
+static uint8_t gf_mulinv(uint8_t x);
+static uint8_t rj_sbox(uint8_t x);
+
 /* -------------------------------------------------------------------------- */
 uint8_t gf_alog(uint8_t x) // calculate anti-logarithm gen 3
 {
@@ -85,13 +91,22 @@ uint8_t rj_sbox(uint8_t x)
     uint8_t y, sb;
 
     sb = y = gf_mulinv(x);
-    y = (y<<1)|(y>>7); sb ^= y;  y = (y<<1)|(y>>7); sb ^= y;
-    y = (y<<1)|(y>>7); sb ^= y;  y = (y<<1)|(y>>7); sb ^= y;
+    y = (uint8_t)(y<<1)|(y>>7); sb ^= y;  y = (uint8_t)(y<<1)|(y>>7); sb ^= y;
+    y = (uint8_t)(y<<1)|(y>>7); sb ^= y;  y = (uint8_t)(y<<1)|(y>>7); sb ^= y;
 
     return (sb ^ 0x63);
 } /* rj_sbox */
 
 #endif
+
+static void aes_subBytes(uint8_t *buf);
+static void aes_addRoundKey(uint8_t *buf, uint8_t *key);
+static void aes_addRoundKey_cpy(uint8_t *buf, uint8_t *key, uint8_t *cpk);
+static void aes_shiftRows(uint8_t *buf);
+static void aes_mixColumns(uint8_t *buf);
+static void aes_expandEncKey(uint8_t *k, uint8_t *rc);
+static void ctr_inc_ctr(uint8_t *val);
+static void ctr_clock_keystream(aes256_context *ctx, uint8_t *ks);
 
 /* -------------------------------------------------------------------------- */
 void aes_subBytes(uint8_t *buf)

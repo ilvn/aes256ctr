@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include "aes256.h"
 
+void dump(char *s, uint8_t *buf, size_t sz);
+
 void dump(char *s, uint8_t *buf, size_t sz)
 {
    size_t i;
@@ -17,7 +19,7 @@ void dump(char *s, uint8_t *buf, size_t sz)
 } /* dump */
 
 
-int main (int argc, char *argv[])
+int main (int __attribute__((unused)) argc, char __attribute__((unused)) *argv[])
 {
     aes256_context ctx;
     uint8_t key[32] = {
