@@ -69,31 +69,24 @@ static const uint8_t sbox[256] =
 /* -------------------------------------------------------------------------- */
 static uint8_t gf_alog(uint8_t x) /* calculate anti-logarithm gen 3 */
 {
-    uint8_t atb = 1, z;
+    uint8_t y = 1, i;
 
-    for (; x > 0; x--)
-    {
-        z = atb;
-        atb <<= 1;
-        if ( z & 0x80 ) atb ^= 0x1b;
-        atb ^= z;
-    }
+    for (i = 0; i < x; i++)
+        y ^= rj_xtime(y);
 
-    return atb;
+    return y;
 } /* gf_alog */
 
 /* -------------------------------------------------------------------------- */
 static uint8_t gf_log(uint8_t x) /* calculate logarithm gen 3 */
 {
-    uint8_t atb, i = 0, z;
+    uint8_t y, i = 0;
 
     if (x)
-        for (i = 0, atb = 1; (atb != x ) && (i < 255); i++)
+        for (i = 1, y = 1; i > 0; i++ )
         {
-            z = atb;
-            atb <<= 1;
-            if ( z & 0x80 ) atb ^= 0x1b;
-            atb ^= z;
+            y ^= rj_xtime(y);
+            if (y == x) break;
         }
 
     return i;
@@ -123,7 +116,9 @@ static uint8_t rj_sbox(uint8_t x)
 
 static uint8_t rj_xtime(uint8_t x)
 {
-    return ( x & 0x80 ) ? ((x << 1) & 0xFF) ^ 0x1b : (x << 1) & 0xFF;
+    uint8_t y = (x << 1) & 0xFF;
+
+    return ( x & 0x80 ) ? y ^ 0x1b : y;
 } /* rj_xtime */
 
 /* -------------------------------------------------------------------------- */
