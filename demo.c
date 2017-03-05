@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include "aes256.h"
 
+#define UNUSED_    __attribute__((unused))
+
 void dump(char *s, uint8_t *buf, size_t sz);
 int mem_isequal(const uint8_t *x, const uint8_t *y, size_t sz);
 
@@ -29,7 +31,7 @@ static const uint8_t AES256_TV[] = {
 };
 
 
-int main (int __attribute__((unused)) argc, char __attribute__((unused)) *argv[])
+int main (UNUSED_ int argc, UNUSED_ char *argv[])
 {
 	uint8_t key[32] = {
 		0xFF, 0x7A, 0x61, 0x7C, 0xE6, 0x91, 0x48, 0xE4,
@@ -50,6 +52,7 @@ int main (int __attribute__((unused)) argc, char __attribute__((unused)) *argv[]
 		{0x00, 0x00, 0x00, 0x01}                          /* counter */
 	};
 	aes256_context ctx;
+	int rc;
 	uint8_t i;
 
 	/*  **********************************************************
@@ -65,13 +68,12 @@ int main (int __attribute__((unused)) argc, char __attribute__((unused)) *argv[]
 
 	aes256_encrypt_ctr(&ctx, buf, sizeof(buf));
 	dump("Result:", buf, sizeof(buf));
-	if ( mem_isequal(buf, RFC3686_TV9, sizeof(RFC3686_TV9)) == 0 )
-		printf("\t^ Ok\n");
-	else
-		printf("\t^ INVALID\n");
+	rc = mem_isequal(buf, RFC3686_TV9, sizeof(RFC3686_TV9));
+	printf("\t^ %s\n", (rc == 0) ? "Ok" : "INVALID" );
 
 	/* reset the counter to decrypt */
-	ctr.ctr[0] = ctr.ctr[1] = ctr.ctr[2] = 0, ctr.ctr[3] = 1;
+	ctr.ctr[0] = ctr.ctr[1] = ctr.ctr[2] = 0;
+	ctr.ctr[3] = 1;
 	aes256_setCtrBlk(&ctx, &ctr);
 	aes256_decrypt_ctr(&ctx, buf, sizeof(buf));
 	dump("Text:", buf, sizeof(buf));
@@ -82,17 +84,17 @@ int main (int __attribute__((unused)) argc, char __attribute__((unused)) *argv[]
 	*/
 
 	printf("\n# ECB test\n");
-	for (i = 0; i < sizeof(AES256_TV); i++) buf[i] = ((i << 4) & 0xF0) + i;
-	for (i = 0; i < sizeof(key); i++) key[i] = i;
+	for (i = 0; i < sizeof(AES256_TV); i++)
+		buf[i] = ((i << 4) & 0xF0) + i;
+	for (i = 0; i < sizeof(key); i++)
+		key[i] = i;
 	dump("Text:", buf, sizeof(AES256_TV));
 	dump("Key:", key, sizeof(key));
 	aes256_init(&ctx, key);
 	aes256_encrypt_ecb(&ctx, buf);
 	dump("Result:", buf, sizeof(AES256_TV));
-	if ( mem_isequal(buf, AES256_TV, sizeof(AES256_TV)) == 0 )
-		printf("\t^ Ok\n");
-	else
-		printf("\t^ INVALID");
+	rc = mem_isequal(buf, AES256_TV, sizeof(AES256_TV));
+	printf("\t^ %s\n", (rc == 0) ? "Ok" : "INVALID" );
 
 	aes256_done(&ctx);
 
@@ -116,13 +118,11 @@ void dump(char *s, uint8_t *buf, size_t sz)
 int mem_isequal(const uint8_t *x, const uint8_t *y, size_t sz)
 {
 	size_t i;
-	int rv;
+	int rv = -1 ;
 
-	if ((sz < 1) || (x == NULL) || (y == NULL) )
-		return -1;
-
-	for (i = 0, rv = 0; i < sz; i++)
-		rv |= (x[i] ^ y[i]);
+	if ( (sz > 0) && (x != NULL) && (y != NULL) )
+		for (i = 0, rv = 0; i < sz; i++)
+			rv |= (x[i] ^ y[i]);
 
 	return rv;
 } /* mem_isequal */
