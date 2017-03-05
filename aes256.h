@@ -30,12 +30,12 @@ typedef struct {
 } aes256_context;
 
 
-void aes256_init(aes256_context *, uint8_t * /* key */);
-void aes256_done(aes256_context *);
-void aes256_encrypt_ecb(aes256_context *, uint8_t * /* plaintext */);
+void aes256_init(aes256_context *ctx, uint8_t *key);
+void aes256_done(aes256_context *ctx);
+void aes256_encrypt_ecb(aes256_context *ctx, uint8_t *buf);
 
-void aes256_setCtrBlk(aes256_context *, rfc3686_blk *);
-void aes256_encrypt_ctr(aes256_context *, uint8_t * /* plaintext */, size_t);
+void aes256_setCtrBlk(aes256_context *ctx, rfc3686_blk *blk);
+void aes256_encrypt_ctr(aes256_context *ctx, uint8_t *buf, size_t sz);
 
 #ifdef __cplusplus
 }
