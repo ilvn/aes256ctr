@@ -81,7 +81,7 @@ static uint8_t gf_log(uint8_t x) /* calculate logarithm gen 3 */
 {
 	uint8_t y, i = 0;
 
-	if (x)
+	if ( x > 0 )
 		for (i = y = 1; i > 0; i++ ) {
 			y ^= rj_xtime(y);
 			if (y == x)
@@ -94,7 +94,7 @@ static uint8_t gf_log(uint8_t x) /* calculate logarithm gen 3 */
 /* -------------------------------------------------------------------------- */
 static uint8_t gf_mulinv(uint8_t x) /* calculate multiplicative inverse */
 {
-	return (x) ? gf_alog(255 - gf_log(x)) : 0;
+	return ( x > 0 ) ? gf_alog(255 - gf_log(x)) : 0;
 } /* gf_mulinv */
 
 /* -------------------------------------------------------------------------- */
@@ -258,7 +258,7 @@ void aes256_encrypt_ecb(aes256_context *ctx, uint8_t *buf)
 		aes_subBytes(buf);
 		aes_shiftRows(buf);
 		aes_mixColumns(buf);
-		if( i & 1 )
+		if( (i & 1) == 1 )
 			aes_addRoundKey(buf, &ctx->key[16]);
 		else {
 			aes_expandEncKey(ctx->key, rcon);
@@ -276,10 +276,10 @@ void aes256_encrypt_ecb(aes256_context *ctx, uint8_t *buf)
 /* -------------------------------------------------------------------------- */
 static void ctr_inc_ctr(uint8_t *val)
 {
-	if (val)
-		if (++val[3] == 0)
-			if (++val[2] == 0)
-				if (++val[1] == 0)
+	if ( val != NULL )
+		if ( ++val[3] == 0 )
+			if ( ++val[2] == 0 )
+				if ( ++val[1] == 0 )
 					val[0]++;
 
 } /* ctr_inc_ctr */
