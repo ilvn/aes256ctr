@@ -1,3 +1,6 @@
+:warning:  **This repository is deprecated in favour of [ilvn/aes256](https://github.com/ilvn/aes256)**
+
+
 This is a portable byte-oriented implementation of AES-256 encryption in
 CTR mode. It is based on the original byte-oriented AES-256 code
 available at http://www.literatecode.com/aes256
